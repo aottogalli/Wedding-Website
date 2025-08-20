@@ -1,0 +1,177 @@
+/* Tailwind v4 core */
+@import "tailwindcss";
+
+/* ===== Theme tokens (create Tailwind utilities) ===== */
+@theme {
+  /* Colors */
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-champagne: #f9f0df;
+  --color-green: #75897b;
+  --color-text: #6c7276;
+
+  /* Fonts */
+  --font-trajan: "Trajan Pro", serif;
+  --font-altitude: "Altitude DB", sans-serif;
+}
+
+/* ===== Webfonts (served from /public/fonts) ===== */
+@font-face {
+  font-family: "Altitude DB";
+  src: url("/fonts/Altitude_DB.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Trajan Pro";
+  src: url("/fonts/TrajanPro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== Base defaults ===== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;      /* prevent horizontal scroll */
+  overflow-y: auto;        /* scroll when needed */
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-trajan);
+  overscroll-behavior-x: none;
+}
+
+@supports (position: fixed) {
+  body { position: relative; min-height: 100vh; }
+}
+
+/* Headings use the script font (matches your mock) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-altitude);
+  font-weight: 400;
+}
+
+/* ===== Custom backgrounds ===== */
+.rsvp-gold-background {
+  background: radial-gradient(
+    circle at center,
+    #f4e8da 0%,
+    #e0c9b0 40%,
+    #cbb199 80%,
+    #b89e88 100%
+  );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Bridal page background: circle gradient */
+.bg-bridal {
+  background: radial-gradient(circle at 50% 0%, #f9f6f7 0%, #f1eaea 60%);
+}
+
+/* Brand pink shortcuts */
+.text-rose { color: #E497A3; }
+.bg-rose { background-color: #E497A3; }
+.border-rose { border-color: #E497A3; }
+
+/* Subtle card outline + shadow */
+.card-outline {
+  border: 1px solid rgba(228, 151, 163, 0.35);
+  box-shadow: 0 2px 18px rgba(228, 151, 163, 0.08);
+}
+
+/* Small helper to make the section tuck under a fixed navbar cleanly */
+.sticky-under-nav {
+  position: sticky;
+  top: 0;          /* if your nav is fixed and taller, adjust here or use a CSS var */
+  z-index: 40;
+}
+
+/* ===== Responsive tweaks you already had ===== */
+/* --- Hero animations --- */
+@keyframes kenburns {
+  0%   { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.animate-kenburns {
+  animation: kenburns 18s ease-out both;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeUp   { animation: fade-up   .9s cubic-bezier(.16,1,.3,1) both; }
+.animate-fadeDown { animation: fade-down .9s cubic-bezier(.16,1,.3,1) both; }
+
+.wipe-start {
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); /* collapsed */
+}
+@keyframes wipeIn {
+  from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); }
+  to   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+.animate-wipeIn {
+  animation: wipeIn 3s ease-out forwards;
+}
+
+/* Optional: subtle card shadow when overlapping previous section */
+.shadow-soft {
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+@keyframes pop {
+  0% { transform: translateY(6px) scale(0.98); opacity: 0.8; }
+  60% { transform: translateY(0) scale(1.03); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+  
+.animate-pop { animation: pop .35s ease-out both; }
+
+/* Navbar */
+:root {
+  --nav-h: 44px;     /* mobile (h-12) */
+}
+@media (min-width: 768px) {
+  :root { --nav-h: 56px; }  /* md:h-14 */
+}
+
+/* =======================
+   FORCE OPAQUE MOBILE MENU
+   ======================= */
+
+/* Our new Navbar gives these IDs — make them hard-opaque */
+#mobile-backdrop { background: #000 !important; opacity: 1 !important; }
+#mobile-drawer   { background: #fff !important; }
+
+/* Nuke any semi-transparent tailwind backdrop colors that might be used
+   by an older/other drawer (note the escaped slash in selectors) */
+.bg-black\/5, .bg-black\/10, .bg-black\/20, .bg-black\/30, .bg-black\/40,
+.bg-black\/50, .bg-black\/60, .bg-black\/70, .bg-black\/80, .bg-black\/90 {
+  background-color: #000 !important;
+}
+
+.bg-white\/5, .bg-white\/10, .bg-white\/20, .bg-white\/30, .bg-white\/40,
+.bg-white\/50, .bg-white\/60, .bg-white\/70, .bg-white\/80, .bg-white\/90 {
+  background-color: #fff !important;
+}
+
+/* If any old drawer used backdrop blur, kill it so the page never shows through */
+.backdrop-blur, .backdrop-blur-sm, .backdrop-blur-md,
+.backdrop-blur-lg, .backdrop-blur-xl {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
