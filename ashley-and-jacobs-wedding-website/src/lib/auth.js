@@ -1,12 +1,16 @@
 // src/lib/auth.js
 import { SignJWT, jwtVerify } from 'jose';
 
-const SECRET_VALUE = process.env.JWT_SECRET;
-if (!SECRET_VALUE) throw new Error('[auth] JWT_SECRET is not set');
+const SECRET_VALUE = process.env.JWT_SECRET || '';
+if (!SECRET_VALUE) {
+    console.warn('[auth] JWT_SECRET is not set'); // don’t throw at import
+}
 const SECRET_BYTES = new TextEncoder().encode(SECRET_VALUE);
 
+// Remove standard JWT claims without triggering no-unused-vars
 export function stripClaims(obj = {}) {
-    const { iat, exp, nbf, jti, iss, aud, ...rest } = obj;
+    const rest = { ...obj };
+    delete rest.iat; delete rest.exp; delete rest.nbf; delete rest.jti; delete rest.iss; delete rest.aud;
     return rest;
 }
 

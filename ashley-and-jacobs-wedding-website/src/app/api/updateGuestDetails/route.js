@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { verifyRequestToken, stripClaims, signToken } from '@/lib/auth';
 import { getSheets } from '@/lib/sheets';
-import { normName, buildDietMap, applyDietaryToList } from '@/lib/helpers';
+import { normName } from '@/lib/helpers'; // ⬅️ only this one is needed
 
 export async function POST(req) {
   const auth = await verifyRequestToken();
@@ -29,7 +29,6 @@ export async function POST(req) {
     const sheets = await getSheets();
     const sheetUpdates = [];
 
-    // 1) Household contact block H:N (no phone)
     const hasHousehold =
       typeof address !== 'undefined' ||
       typeof city !== 'undefined' ||
@@ -39,7 +38,6 @@ export async function POST(req) {
       typeof email !== 'undefined';
 
     if (hasHousehold) {
-      // Append to "Address Updates" log
       await sheets.spreadsheets.values.append({
         spreadsheetId: process.env.SPREADSHEET_ID,
         range: 'Address Updates!A1',
@@ -49,13 +47,12 @@ export async function POST(req) {
           values: [[
             auth.guest.invitationName,
             address || '', city || '', province || '', country || '',
-            postalCode || '', email || '', /* phone */ '',
+            postalCode || '', email || '', '',
             new Date().toLocaleString(),
           ]],
         },
       });
 
-      // Mirror to each household row (H:N) — leave phone blank here
       for (const g of (auth.guest.invitationRowIndexes || [])) {
         const row = Number(g.rowIndex) + 2;
         sheetUpdates.push({
@@ -68,7 +65,6 @@ export async function POST(req) {
       }
     }
 
-    // 2) Per-person edits: C (first), D (last), N (phone)
     const nameToIndex = new Map(
       (auth.guest.individualDetails || []).map(d => [normName(d.fullName || ''), Number(d.rowIndex)])
     );
@@ -110,7 +106,6 @@ export async function POST(req) {
       });
     }
 
-    // 3) Update token everywhere (names/phones) — no writes to Full Name col B
     const updateNamesEverywhere = (arr = []) =>
       arr.map(item => {
         const edit = perPersonEdits.find(e => Number(e.rowIndex) === Number(item.rowIndex));
