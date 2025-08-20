@@ -1,8 +1,6 @@
 // src/app/login/page.jsx
 'use client';
-import { useEffect, useMemo, useState } from 'react';
-// ⬇️ removed useRouter import — AuthContext redirects now
-// import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 
@@ -21,54 +19,33 @@ const _detectCountry = (raw) => {
   return 'UNKNOWN';
 };
 
-export const formatPostalAuto = (value) => {
+const formatPostalAuto = (value) => {
   const type = _detectCountry(value);
   switch (type) {
-    case 'CA': {
-      const s = _cleanAN(value).slice(0, 6);
-      return s.replace(/(^.{3})/, '$1 ').trim();
-    }
-    case 'NL': {
-      const s = _cleanAN(value).slice(0, 6);
-      return s.length <= 4 ? s : `${s.slice(0,4)} ${s.slice(4)}`;
-    }
-    case 'PT': {
-      const d = _digits(value).slice(0, 7);
-      return d.length <= 4 ? d : `${d.slice(0,4)}-${d.slice(4)}`;
-    }
-    case 'GB': {
-      const s = _cleanAN(value).slice(0, 8);
-      return s.length > 3 ? `${s.slice(0, s.length - 3)} ${s.slice(-3)}` : s;
-    }
-    case 'US9': {
-      const d = _digits(value).slice(0, 9);
-      return `${d.slice(0,5)}-${d.slice(5)}`;
-    }
-    case 'NUM5': {
-      return _digits(value).slice(0, 5);
-    }
-    default:
-      return _cleanAN(value).slice(0, 10);
+    case 'CA': { const s = _cleanAN(value).slice(0, 6); return s.replace(/(^.{3})/, '$1 ').trim(); }
+    case 'NL': { const s = _cleanAN(value).slice(0, 6); return s.length <= 4 ? s : `${s.slice(0,4)} ${s.slice(4)}`; }
+    case 'PT': { const d = _digits(value).slice(0, 7); return d.length <= 4 ? d : `${d.slice(0,4)}-${d.slice(4)}`; }
+    case 'GB': { const s = _cleanAN(value).slice(0, 8); return s.length > 3 ? `${s.slice(0, s.length - 3)} ${s.slice(-3)}` : s; }
+    case 'US9': { const d = _digits(value).slice(0, 9); return `${d.slice(0,5)}-${d.slice(5)}`; }
+    case 'NUM5': return _digits(value).slice(0, 5);
+    default: return _cleanAN(value).slice(0, 10);
   }
 };
 
-export const normalizePostalAuto = (value) => {
+const normalizePostalAuto = (value) => {
   const type = _detectCountry(value);
   switch (type) {
     case 'CA':
     case 'GB':
-    case 'NL':
-      return _cleanAN(value);
+    case 'NL':  return _cleanAN(value);
     case 'PT':
     case 'US9':
-    case 'NUM5':
-      return _digits(value);
-    default:
-      return _cleanAN(value);
+    case 'NUM5': return _digits(value);
+    default:     return _cleanAN(value);
   }
 };
 
-export const isValidPostalAuto = (value) => {
+const isValidPostalAuto = (value) => {
   const type = _detectCountry(value);
   const an = _cleanAN(value);
   const d  = _digits(value);
@@ -84,9 +61,7 @@ export const isValidPostalAuto = (value) => {
 };
 
 export default function LoginPage() {
-  // const router = useRouter(); // ⬅️ removed
   const { login } = useAuth();
-
   const [fullName, setFullName] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [error, setError] = useState('');
@@ -99,13 +74,11 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('[login] submit clicked');
     if (isLoading) return;
     setError('');
 
     const name = fullName.trim().replace(/\s+/g, ' ');
     const pc = normalizePostalAuto(postalCode);
-
     if (!name || !isValidPostalAuto(postalCode)) {
       setError('Please enter a valid name and postal/ZIP code.');
       return;
@@ -113,9 +86,7 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true);
-      // ⬇️ let AuthContext handle redirect after success
       await login({ fullName: name, postalCode: pc });
-      // router.push('/')  // ⬅️ removed
     } catch (err) {
       setError(err?.message || 'Login failed. Please try again.');
     } finally {
@@ -124,64 +95,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='min-h-screen bg-champagne flex flex-col items-center justify-center p-6'>
-      <h1 className='mb-8 text-4xl md:text-5xl'>Guest Login</h1>
-
-      <div className='bg-white shadow-md w-full max-w-[560px] p-6 md:p-10'>
-        <div className='flex flex-col items-center space-y-8 md:space-y-10'>
-          <Image
-            src="/images/swans.svg"
-            alt="Swans Logo"
-            width={220}
-            height={87}
-            priority
-            className="select-none w-40 md:w-[220px] h-auto"
-          />
-
-          <form onSubmit={handleLogin} className='w-full space-y-8 md:space-y-10'>
-            <div className='max-w-[504px] mx-auto w-full'>
-              <div className='grid grid-cols-1 md:grid-cols-[12rem_minmax(0,1fr)] items-center gap-y-6 md:gap-x-6'>
-                <label htmlFor='fullName' className='text-base font-trajan leading-none md:justify-self-end'>Full Name:</label>
-                <input
-                  id="fullName"
-                  type="text"
-                  autoComplete="name"
-                  autoCapitalize="words"
-                  disabled={isLoading}
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value.replace(/\s+/g, ' '))}
-                  className="font-trajan text-[16px] md:text-sm w-full h-12 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green/30 focus:border-green/70"
-                />
-                <label htmlFor='postalCode' className='text-base font-trajan leading-none md:justify-self-end'>Postal Code:</label>
-                <input
-                  id="postalCode"
-                  type="text"
-                  autoComplete="postal-code"
-                  disabled={isLoading}
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(formatPostalAuto(e.target.value))}
-                  className="font-trajan text-[16px] md:text-sm w-full h-12 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green/30 focus:border-green/70"
-                />
+    <div className="min-h-screen bg-champagne flex flex-col items-center justify-center p-6">
+      <h1 className="mb-8 text-4xl md:text-5xl">Guest Login</h1>
+      <div className="bg-white shadow-md w-full max-w-[560px] p-6 md:p-10">
+        <div className="flex flex-col items-center space-y-8 md:space-y-10">
+          <Image src="/images/swans.svg" alt="Swans Logo" width={220} height={87} priority className="select-none w-40 md:w-[220px] h-auto" />
+          <form onSubmit={handleLogin} className="w-full space-y-8 md:space-y-10">
+            <div className="max-w-[504px] mx-auto w-full">
+              <div className="grid grid-cols-1 md:grid-cols-[12rem_minmax(0,1fr)] items-center gap-y-6 md:gap-x-6">
+                <label htmlFor="fullName" className="text-base font-trajan leading-none md:justify-self-end">Full Name:</label>
+                <input id="fullName" type="text" autoComplete="name" autoCapitalize="words" disabled={isLoading}
+                  value={fullName} onChange={(e)=>setFullName(e.target.value.replace(/\s+/g,' '))}
+                  className="font-trajan text-[16px] md:text-sm w-full h-12 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green/30 focus:border-green/70" />
+                <label htmlFor="postalCode" className="text-base font-trajan leading-none md:justify-self-end">Postal Code:</label>
+                <input id="postalCode" type="text" autoComplete="postal-code" disabled={isLoading}
+                  value={postalCode} onChange={(e)=>setPostalCode(formatPostalAuto(e.target.value))}
+                  className="font-trajan text-[16px] md:text-sm w-full h-12 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green/30 focus:border-green/70" />
               </div>
             </div>
-            <div className='text-center'>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`font-trajan w-full md:w-auto py-3 px-12 bg-green text-white text-sm tracking-wide outline-none focus:outline-none focus:ring-0 ${
-                  isLoading ? 'cursor-not-allowed opacity-70' : ''
-                }`}
-              >
+            <div className="text-center">
+              <button type="submit" disabled={isLoading || !ready}
+                className={`font-trajan w-full md:w-auto py-3 px-12 bg-green text-white text-sm tracking-wide ${isLoading?'cursor-not-allowed opacity-70':''}`}>
                 {isLoading ? 'LOGGING IN…' : 'LOGIN'}
               </button>
             </div>
           </form>
-
-          {error && (
-            <p className="text-red-600 text-sm" role="status" aria-live="polite">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-red-600 text-sm" role="status" aria-live="polite">{error}</p>}
         </div>
       </div>
     </div>
