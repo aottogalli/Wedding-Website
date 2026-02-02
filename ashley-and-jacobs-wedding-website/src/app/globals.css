@@ -9,6 +9,7 @@
   --color-champagne: #f9f0df;
   --color-green: #75897b;
   --color-text: #6c7276;
+  --border-green: #75897b;
 
   /* Fonts */
   --font-trajan: "Trajan Pro", serif;
@@ -63,21 +64,71 @@ h1, h2, h3, h4, h5, h6 {
 .rsvp-gold-background {
   background: radial-gradient(
     circle at center,
-    #f4e8da 0%,
-    #e0c9b0 40%,
-    #cbb199 80%,
-    #b89e88 100%
+    #fffdf8 0%,
+    #fdf6ea 35%,
+    #f9f0df 70%,
+    #f4e8d3 100%
   );
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
 }
 
-/* Subtle card outline + shadow */
-/* .card-outline {
-  border: 1px solid rgba(228, 151, 163, 0.35);
-  box-shadow: 0 2px 18px rgba(228, 151, 163, 0.08);
-} */
+.rsvp-footer {
+  background: linear-gradient(
+    to bottom,
+    #f6edde 0%,
+    #f2e4cf 35%,
+    #eee0c9 100%
+  );
+  border-top: 1px solid rgba(143, 155, 141, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+  color: #6c7276;
+}
+
+.rsvp-footer .py-8, .rsvp-footer .py-10{
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.monogram {
+  width: 64px;
+  height: 64px;
+  background-color: currentColor;
+
+  -webkit-mask: url("/images/aj_champagne.svg") no-repeat center / contain;
+  mask: url("/images/aj_champagne.svg") no-repeat center / contain;
+
+}
+
+.rsvp-card {
+  background: rgba(255, 255, 255, 0.60);
+  border: 0px solid rgba(143, 155, 141, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.rsvp-btn-primary {
+  background: #2b2b2b;
+  color: white;
+  border: 1px solid #2b2b2b;
+}
+.rsvp-btn-primary:hover { opacity: 0.92; }
+
+.rsvp-btn-outline {
+  background: transparent;
+  color: #2b2b2b;
+  border: 1px solid rgba(205, 191, 174, 0.9);
+}
+
+.rsvp-btn-primary {
+  background: #8f9b8d;
+  color: white;
+  border: 1px solid #8f9b8d;
+}
+
+
+
 
 /* Small helper to make the section tuck under a fixed navbar cleanly */
 .sticky-under-nav {
@@ -165,3 +216,4 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+

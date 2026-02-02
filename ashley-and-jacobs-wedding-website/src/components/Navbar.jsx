@@ -128,7 +128,7 @@ export default function Navbar() {
             <Link href="/#faq" className={link}>Q+A</Link>
             <Link href="/weddingRSVP" className={link}>RSVP</Link>
             {mounted && hasRehearsal && (
-              <Link href="/rehearsalRSVP" className={link}>
+              <Link href="/rehearsalDinnerRSVP" className={link}>
                 Rehearsal&nbsp;RSVP
               </Link>
             )}
@@ -183,7 +183,7 @@ export default function Navbar() {
             <Link href="/weddingRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">RSVP</Link>
 
             {mounted && hasRehearsal && (
-              <Link href="/rehearsalRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">
+              <Link href="/rehearsalDinnerRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">
                 Rehearsal&nbsp;RSVP
               </Link>
             )}

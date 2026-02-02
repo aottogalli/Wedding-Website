@@ -1,6 +1,6 @@
 // src/app/login/page.jsx
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 
@@ -93,6 +93,29 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    // Save previous inline styles so we can restore them
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyPaddingRight = body.style.paddingRight;
+
+    // Prevent layout shift when scrollbar disappears
+    const scrollbarWidth = window.innerWidth - html.clientWidth;
+
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
+
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.paddingRight = prevBodyPaddingRight;
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-champagne flex flex-col items-center justify-center p-6">

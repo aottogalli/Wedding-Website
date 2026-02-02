@@ -35,8 +35,8 @@ export function buildGuestPayload(rows, rowIndex, postalCode) {
         .filter((o) => filterCol == null || ((o.row[filterCol] || '').trim().toLowerCase() === 'true' || (o.row[filterCol] || '').trim() === 'TRUE'))
         .map((o) => ({ fullName: (o.row[1] || '').trim(), rsvp: (o.row[colRSVP] || '').trim(), rowIndex: Number(o.index) }));
 
-    const invitationRowIndexes   = mapGuests(21);        // wedding (V)
-    const invitedToRehearsalDinner = mapGuests(24, 22);  // rehearsal (Y) if invited? (W)
+    const invitationRowIndexes   = mapGuests(20);        // wedding (V)
+    const invitedToRehearsalDinner = mapGuests(23, 21);  // rehearsal (Y) if invited? (W)
 
     const individualDetails = matches.map((o) => ({
         fullName: (o.row[1] || '').trim(),
