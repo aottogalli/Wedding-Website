@@ -86,7 +86,7 @@ export default function Navbar() {
     return cleanup;
   }, [isHome, setSolidSafe]);
 
-  const hasBridal = Array.isArray(guest?.invitedToBridalShower) ? guest.invitedToBridalShower.length > 0 : !!guest?.invitedToBridalShower;
+  const hasRehearsal = Array.isArray(guest?.invitedToRehearsalDinner) ? guest.invitedToRehearsalDinner.length > 0 : !!guest?.invitedToRehearsalDinner;
 
   // UI classes
   const lightOverHero = isHome && !solid;
@@ -126,9 +126,10 @@ export default function Navbar() {
             <Link href="/#hero" className={link}>Home</Link>
             <Link href="/#itinerary" className={link}>Itinerary</Link>
             <Link href="/#faq" className={link}>Q+A</Link>
-            {mounted && hasBridal && (
-              <Link href="/bridalShowerRSVP" className={link}>
-                Bridal&nbsp;Shower&nbsp;RSVP
+            <Link href="/weddingRSVP" className={link}>RSVP</Link>
+            {mounted && hasRehearsal && (
+              <Link href="/rehearsalRSVP" className={link}>
+                Rehearsal&nbsp;RSVP
               </Link>
             )}
           </div>
@@ -179,10 +180,11 @@ export default function Navbar() {
             <Link href="/#hero"      onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Home</Link>
             <Link href="/#itinerary" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Itinerary</Link>
             <Link href="/#faq"       onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Q+A</Link>
+            <Link href="/weddingRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">RSVP</Link>
 
-            {mounted && hasBridal && (
-              <Link href="/bridalShowerRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">
-                Bridal&nbsp;Shower&nbsp;RSVP
+            {mounted && hasRehearsal && (
+              <Link href="/rehearsalRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">
+                Rehearsal&nbsp;RSVP
               </Link>
             )}
             {mounted && guest && (

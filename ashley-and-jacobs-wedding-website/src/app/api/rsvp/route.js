@@ -16,8 +16,7 @@ import {
 } from '@/lib/helpers';
 
 const EVENT_MAP = {
-    wedding:   { field: 'invitationRowIndexes',   col: 'V' },
-    bridal:    { field: 'invitedToBridalShower',  col: 'S' },
+    wedding: { field: 'invitationRowIndexes', col: 'V' },
     rehearsal: { field: 'invitedToRehearsalDinner', col: 'Y' },
 };
 
@@ -25,6 +24,20 @@ function getSpec(url) {
     const event = (new URL(url).searchParams.get('event') || 'wedding').toLowerCase();
     const spec = EVENT_MAP[event];
     return spec ? { key: event, ...spec } : null;
+}
+
+function isRehearsal(spec) {
+    return spec?.key === 'rehearsal';
+}
+
+function setAuthCookie(res, token) {
+    res.cookies.set('auth', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 60 * 60 * 2,
+    });
 }
 
 /* ======================= GET: always FRESH from SHEET ======================= */
@@ -40,32 +53,47 @@ export async function GET(req) {
         const rows = await getRows(sheets);
 
         // Find the user’s current row in the sheet (robust match)
-        const wantFullNorm = auth.guest.fullName;          // token stores normalized
-        const wantPostal   = auth.guest.postalCode;
+        const wantFullNorm = auth.guest.fullName; // token stores normalized
+        const wantPostal = auth.guest.postalCode;
+
         let idx = rows.findIndex(
-            r => normName(r?.[1] || '') === wantFullNorm && normPostal(r?.[11] || '') === wantPostal
+            (r) => normName(r?.[1] || '') === wantFullNorm && normPostal(r?.[11] || '') === wantPostal
         );
+
         if (idx === -1) {
             // fallback: invitation group + display name
             const disp = normName([auth.guest.firstName, auth.guest.lastName].filter(Boolean).join(' '));
             idx = rows.findIndex(
-                r => (r?.[0] || '').trim() === auth.guest.invitationName && normName(r?.[1] || '') === disp
+                (r) => (r?.[0] || '').trim() === auth.guest.invitationName && normName(r?.[1] || '') === disp
             );
         }
-        if (idx === -1 && Number.isFinite(auth.guest.rowIndex) && auth.guest.rowIndex >= 0 && auth.guest.rowIndex < rows.length) {
+
+        if (
+            idx === -1 &&
+            Number.isFinite(auth.guest.rowIndex) &&
+            auth.guest.rowIndex >= 0 &&
+            auth.guest.rowIndex < rows.length
+        ) {
             idx = auth.guest.rowIndex;
         }
 
         // If we still can't resolve, fall back to token view
         if (idx === -1) {
             const source = Array.isArray(auth.guest?.[spec.field]) ? auth.guest[spec.field] : [];
-            const byIndex = new Map((auth.guest?.individualDetails || []).map(d => [Number(d.rowIndex), d]));
-            const rsvpList = source.map(g => ({
+
+            // Enforce rehearsal invite even on token fallback
+            if (isRehearsal(spec) && source.length === 0) {
+                return NextResponse.json({ error: 'Not invited to rehearsal dinner' }, { status: 403 });
+            }
+
+            const byIndex = new Map((auth.guest?.individualDetails || []).map((d) => [Number(d.rowIndex), d]));
+            const rsvpList = source.map((g) => ({
                 fullName: g.fullName,
                 rsvp: g.rsvp || '',
                 dietary: byIndex.get(Number(g.rowIndex))?.dietary || '',
                 rowIndex: Number(g.rowIndex),
             }));
+
             return NextResponse.json(rsvpList, { status: 200 });
         }
 
@@ -73,8 +101,17 @@ export async function GET(req) {
         const freshGuest = buildGuestPayload(rows, idx, wantPostal);
         const token = await signToken(freshGuest);
 
-        const byIndexNew = new Map(freshGuest.individualDetails.map(d => [Number(d.rowIndex), d]));
-        const rsvpList = (freshGuest[spec.field] || []).map(g => ({
+        const invitedList = Array.isArray(freshGuest?.[spec.field]) ? freshGuest[spec.field] : [];
+
+        // Enforce rehearsal invite on fresh sheet view (still refresh auth cookie)
+        if (isRehearsal(spec) && invitedList.length === 0) {
+            const res = NextResponse.json({ error: 'Not invited to rehearsal dinner' }, { status: 403 });
+            setAuthCookie(res, token);
+            return res;
+        }
+
+        const byIndexNew = new Map((freshGuest.individualDetails || []).map((d) => [Number(d.rowIndex), d]));
+        const rsvpList = invitedList.map((g) => ({
             fullName: g.fullName,
             rsvp: g.rsvp || '',
             dietary: byIndexNew.get(Number(g.rowIndex))?.dietary || '',
@@ -82,13 +119,7 @@ export async function GET(req) {
         }));
 
         const res = NextResponse.json(rsvpList, { status: 200 });
-        res.cookies.set('auth', token, {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production',
-            path: '/',
-            maxAge: 60 * 60 * 2,
-        });
+        setAuthCookie(res, token);
         return res;
     } catch (e) {
         console.error('RSVP GET fresh error:', e);
@@ -109,6 +140,11 @@ export async function PUT(req) {
     const body = await req.json().catch(() => ({}));
     const inputList = Array.isArray(body?.rsvpList) ? body.rsvpList : [];
     const currentList = Array.isArray(auth.guest?.[spec.field]) ? auth.guest[spec.field] : [];
+
+    // Enforce rehearsal invite on PUT too (prevents "type URL and submit")
+    if (isRehearsal(spec) && currentList.length === 0) {
+        return NextResponse.json({ error: 'Not invited to rehearsal dinner' }, { status: 403 });
+    }
 
     // Build Google Sheets updates (match by rowIndex OR normalized name)
     const updates = [];
@@ -156,8 +192,8 @@ export async function PUT(req) {
     const token = await signToken(updatedGuest);
 
     // Build a fresh list from the updated token so UI can update immediately
-    const byIndexNew = new Map(updatedGuest.individualDetails.map(d => [Number(d.rowIndex), d]));
-    const rsvpListNew = updatedGuest[spec.field].map(g => ({
+    const byIndexNew = new Map((updatedGuest.individualDetails || []).map((d) => [Number(d.rowIndex), d]));
+    const rsvpListNew = (Array.isArray(updatedGuest?.[spec.field]) ? updatedGuest[spec.field] : []).map((g) => ({
         fullName: g.fullName,
         rsvp: g.rsvp || '',
         dietary: byIndexNew.get(Number(g.rowIndex))?.dietary || '',
@@ -168,12 +204,6 @@ export async function PUT(req) {
         { success: true, guest: updatedGuest, token, rsvpList: rsvpListNew },
         { status: 200 }
     );
-    res.cookies.set('auth', token, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 60 * 2,
-    });
+    setAuthCookie(res, token);
     return res;
 }

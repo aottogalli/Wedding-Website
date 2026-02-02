@@ -64,7 +64,6 @@ export async function POST(req) {
         const coerceArray = (v) => Array.isArray(v) ? v : (v ? [v] : []);
         const guest = {
             ...guestRaw,
-            invitedToBridalShower: coerceArray(guestRaw.invitedToBridalShower),
             invitedToRehearsalDinner: coerceArray(guestRaw.invitedToRehearsalDinner),
         };
 

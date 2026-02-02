@@ -73,21 +73,11 @@ h1, h2, h3, h4, h5, h6 {
   background-size: cover;
 }
 
-/* Bridal page background: circle gradient */
-.bg-bridal {
-  background: radial-gradient(circle at 50% 0%, #f9f6f7 0%, #f1eaea 60%);
-}
-
-/* Brand pink shortcuts */
-.text-rose { color: #E497A3; }
-.bg-rose { background-color: #E497A3; }
-.border-rose { border-color: #E497A3; }
-
 /* Subtle card outline + shadow */
-.card-outline {
+/* .card-outline {
   border: 1px solid rgba(228, 151, 163, 0.35);
   box-shadow: 0 2px 18px rgba(228, 151, 163, 0.08);
-}
+} */
 
 /* Small helper to make the section tuck under a fixed navbar cleanly */
 .sticky-under-nav {

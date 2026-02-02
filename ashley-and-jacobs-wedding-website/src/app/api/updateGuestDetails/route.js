@@ -127,7 +127,6 @@ export async function POST(req) {
     let updatedGuest = {
       ...guestNoClaims,
       invitationRowIndexes: updateNamesEverywhere(guestNoClaims.invitationRowIndexes || []),
-      invitedToBridalShower: updateNamesEverywhere(guestNoClaims.invitedToBridalShower || []),
       invitedToRehearsalDinner: updateNamesEverywhere(guestNoClaims.invitedToRehearsalDinner || []),
       individualDetails: updateIndividuals(guestNoClaims.individualDetails || []),
     };

@@ -36,7 +36,6 @@ export function buildGuestPayload(rows, rowIndex, postalCode) {
         .map((o) => ({ fullName: (o.row[1] || '').trim(), rsvp: (o.row[colRSVP] || '').trim(), rowIndex: Number(o.index) }));
 
     const invitationRowIndexes   = mapGuests(21);        // wedding (V)
-    const invitedToBridalShower  = mapGuests(18, 16);    // bridal (S) if invited? (Q)
     const invitedToRehearsalDinner = mapGuests(24, 22);  // rehearsal (Y) if invited? (W)
 
     const individualDetails = matches.map((o) => ({
@@ -57,7 +56,6 @@ export function buildGuestPayload(rows, rowIndex, postalCode) {
         userDataComplete: completeData,
         rowIndex: Number(rowIndex),
         invitationRowIndexes,
-        invitedToBridalShower,
         invitedToRehearsalDinner,
         individualDetails,
     };

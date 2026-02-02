@@ -32,9 +32,7 @@ async function putList(event, rsvpList) {
 export async function fetchWeddingRSVP() {
     return getList('wedding');
 }
-export async function fetchBridalShowerRSVP() {
-    return getList('bridal');
-}
+
 export async function fetchRehearsalDinnerRSVP() {
     return getList('rehearsal');
 }
@@ -43,5 +41,7 @@ export async function submitWeddingRSVP(rsvpList) {
     // Expecting [{ rowIndex, fullName, rsvp, dietary }]
     return putList('wedding', rsvpList);
 }
-export const submitBridalShowerRSVP = async (rsvpList) => putList('bridal', rsvpList);
-export const submitRehearsalDinnerRSVP = async (rsvpList) => putList('rehearsal', rsvpList);
+
+export async function submitRehearsalDinnerRSVP(rsvpList) {
+    return putList('rehearsal', rsvpList);
+}
