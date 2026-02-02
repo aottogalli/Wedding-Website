@@ -16,8 +16,8 @@ import {
 } from '@/lib/helpers';
 
 const EVENT_MAP = {
-    wedding: { field: 'invitationRowIndexes', col: 'V' },
-    rehearsal: { field: 'invitedToRehearsalDinner', col: 'Y' },
+    wedding: { field: 'invitationRowIndexes', col: 'U' },
+    rehearsal: { field: 'invitedToRehearsalDinner', col: 'X' },
 };
 
 function getSpec(url) {

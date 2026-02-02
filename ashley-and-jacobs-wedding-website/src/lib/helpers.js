@@ -27,13 +27,23 @@ export const applyDietaryToList = (list = [], dietMap = new Map()) =>
     list.map((item) => (dietMap.has(Number(item.rowIndex)) ? { ...item, dietary: dietMap.get(Number(item.rowIndex)) } : item));
 
 export function buildGuestPayload(rows, rowIndex, postalCode) {
-    const invitationGroup = rows[rowIndex][0];
+    const invitationGroup = (rows[rowIndex]?.[0] || '').trim();
     const matches = rows.map((row, i) => ({ row, index: i })).filter((o) => (o.row[0] || '').trim() === invitationGroup);
+
+    const isTruthy = (v) => {
+        if (v === true) return true;
+        const s = String(v ?? '').trim().toLowerCase();
+        return ['true', 'yes', 'y', '1', 'x', 'checked'].includes(s);
+    };
 
     const mapGuests = (colRSVP, filterCol = null) =>
         matches
-        .filter((o) => filterCol == null || ((o.row[filterCol] || '').trim().toLowerCase() === 'true' || (o.row[filterCol] || '').trim() === 'TRUE'))
-        .map((o) => ({ fullName: (o.row[1] || '').trim(), rsvp: (o.row[colRSVP] || '').trim(), rowIndex: Number(o.index) }));
+        .filter((o) => filterCol == null || isTruthy(o.row?.[filterCol]))
+        .map((o) => ({
+            fullName: (o.row?.[1] || '').trim(),
+            rsvp: (o.row?.[colRSVP] || '').trim(),
+            rowIndex: Number(o.index),
+        }));
 
     const invitationRowIndexes   = mapGuests(20);        // wedding (V)
     const invitedToRehearsalDinner = mapGuests(23, 21);  // rehearsal (Y) if invited? (W)
