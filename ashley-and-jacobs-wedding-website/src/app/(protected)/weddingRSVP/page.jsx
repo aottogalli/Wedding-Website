@@ -127,7 +127,7 @@ export default function WeddingPage() {
                 {/* Page header */}
                 <div className='text-center mb-8 md:mb-10'>
                     <h1 className='mt-4 text-4xl sm:text-5xl md:text-6xl font-altitude mb-5'>Wedding RSVP</h1>
-                    <div className="monogram-swan h-37 mx-auto w-auto mb-3 text-green animate-wipeIn" aria-hidden="true" />
+                    <div className="monogram-swan h-37 mx-auto w-auto mb-3 text-green" aria-hidden="true" />
                     {/* <p className='mt-6 text-xl md:text-2xl'>May 9, 2026</p> */}
                     <p className="text-lg md:text-md mt-6 mb-5">Please RSVP by <span className="font-semibold">April 1st</span></p>
                     
