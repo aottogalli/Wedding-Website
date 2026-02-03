@@ -5,30 +5,27 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { verifyRequestToken, stripClaims, signToken } from '@/lib/auth';
 import { getSheets } from '@/lib/sheets';
-import { normName } from '@/lib/helpers'; // ⬅️ only this one is needed
+import { normName } from '@/lib/helpers';
 
 export async function POST(req) {
   const auth = await verifyRequestToken();
-  if (!auth.ok) return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.code || 401 });
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: auth.error || 'Unauthorized' },
+      { status: auth.code || 401 }
+    );
+  }
 
   const {
     address, city, province, country, postalCode, email,
-    individuals = [], // [{ rowIndex?, fullName?, firstName?, lastName?, phone? }]
+    individuals = [], // [{ rowIndex (recommended), firstName?, lastName?, phone?, fullName? }]
   } = await req.json().catch(() => ({}));
-
-  const composeFullName = (prevFull = '', newFirst, newLast) => {
-    const parts = prevFull.trim().split(/\s+/);
-    const prevFirst = parts[0] || '';
-    const prevLast = parts.slice(1).join(' ');
-    const first = typeof newFirst !== 'undefined' ? String(newFirst).trim() : prevFirst;
-    const last  = typeof newLast  !== 'undefined' ? String(newLast).trim()  : prevLast;
-    return `${first} ${last}`.trim();
-  };
 
   try {
     const sheets = await getSheets();
     const sheetUpdates = [];
 
+    // ---------------- Household updates (unchanged) ----------------
     const hasHousehold =
       typeof address !== 'undefined' ||
       typeof city !== 'undefined' ||
@@ -65,37 +62,68 @@ export async function POST(req) {
       }
     }
 
-    const nameToIndex = new Map(
-      (auth.guest.individualDetails || []).map(d => [normName(d.fullName || ''), Number(d.rowIndex)])
-    );
+    // ---------------- Safe rowIndex resolution ----------------
+    // Prefer rowIndex ALWAYS. If missing, only fallback to fullName when unambiguous.
+    const nameToIndexes = new Map();
+    for (const d of (auth.guest.individualDetails || [])) {
+      const key = normName(d.fullName || '');
+      if (!key) continue;
+      const arr = nameToIndexes.get(key) || [];
+      arr.push(Number(d.rowIndex));
+      nameToIndexes.set(key, arr);
+    }
 
-    const perPersonEdits = []; // { rowIndex, newFullName?, newPhone? }
+    const perPersonEdits = []; // { rowIndex, firstName?, lastName?, phone? }
 
     for (const person of (individuals || [])) {
       let rIdx = Number(person?.rowIndex);
-      if (!Number.isFinite(rIdx) && person?.fullName) {
-        rIdx = nameToIndex.get(normName(person.fullName)) ?? NaN;
-      }
-      if (!Number.isFinite(rIdx)) continue;
 
+      if (!Number.isFinite(rIdx) && person?.fullName) {
+        const hits = nameToIndexes.get(normName(person.fullName)) || [];
+        if (hits.length === 1) rIdx = hits[0];
+        if (hits.length > 1) {
+          return NextResponse.json(
+            { error: `Ambiguous match for "${person.fullName}". Send rowIndex for each person.` },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (!Number.isFinite(rIdx)) continue;
       const row = rIdx + 2;
 
       const hasFirst = typeof person.firstName !== 'undefined';
       const hasLast  = typeof person.lastName  !== 'undefined';
-      if (hasFirst) sheetUpdates.push({ range: `Guest List!C${row}`, values: [[String(person.firstName).trim()]] });
-      if (hasLast)  sheetUpdates.push({ range: `Guest List!D${row}`, values: [[String(person.lastName).trim()]] });
+      const hasPhone = typeof person.phone !== 'undefined';
 
-      if (hasFirst || hasLast) {
-        const existing = (auth.guest.individualDetails || []).find(d => Number(d.rowIndex) === rIdx);
-        const newFull = composeFullName(existing?.fullName || '', person.firstName, person.lastName);
-        perPersonEdits.push({ rowIndex: rIdx, newFullName: newFull });
+      // ✅ Column 3 (C) = firstName, Column 4 (D) = lastName
+      if (hasFirst) {
+        sheetUpdates.push({
+          range: `Guest List!C${row}`,
+          values: [[String(person.firstName).trim()]],
+        });
+      }
+      if (hasLast) {
+        sheetUpdates.push({
+          range: `Guest List!D${row}`,
+          values: [[String(person.lastName).trim()]],
+        });
       }
 
-      if (typeof person.phone !== 'undefined') {
-        const newPhone = String(person.phone).trim();
-        sheetUpdates.push({ range: `Guest List!N${row}`, values: [[newPhone]] });
-        const existingEdit = perPersonEdits.find(e => e.rowIndex === rIdx);
-        if (existingEdit) existingEdit.newPhone = newPhone; else perPersonEdits.push({ rowIndex: rIdx, newPhone });
+      if (hasPhone) {
+        sheetUpdates.push({
+          range: `Guest List!N${row}`,
+          values: [[String(person.phone).trim()]],
+        });
+      }
+
+      if (hasFirst || hasLast || hasPhone) {
+        perPersonEdits.push({
+          rowIndex: rIdx,
+          ...(hasFirst ? { firstName: String(person.firstName).trim() } : {}),
+          ...(hasLast ? { lastName: String(person.lastName).trim() } : {}),
+          ...(hasPhone ? { phone: String(person.phone).trim() } : {}),
+        });
       }
     }
 
@@ -106,44 +134,38 @@ export async function POST(req) {
       });
     }
 
-    const updateNamesEverywhere = (arr = []) =>
-      arr.map(item => {
-        const edit = perPersonEdits.find(e => Number(e.rowIndex) === Number(item.rowIndex));
-        return edit ? { ...item, ...(edit.newFullName ? { fullName: edit.newFullName } : {}) } : item;
-      });
-
-    const updateIndividuals = (arr = []) =>
-      arr.map(item => {
-        const edit = perPersonEdits.find(e => Number(e.rowIndex) === Number(item.rowIndex));
-        return edit ? {
-          ...item,
-          ...(edit.newFullName ? { fullName: edit.newFullName } : {}),
-          ...(typeof edit.newPhone !== 'undefined' ? { phone: edit.newPhone } : {}),
-        } : item;
-      });
-
+    // ---------------- Update token (but DO NOT change fullName) ----------------
     const guestNoClaims = stripClaims(auth.guest);
+
+    const updatedIndividuals = (guestNoClaims.individualDetails || []).map((item) => {
+      const edit = perPersonEdits.find((e) => Number(e.rowIndex) === Number(item.rowIndex));
+      if (!edit) return item;
+      return {
+        ...item,
+        ...(typeof edit.firstName !== 'undefined' ? { firstName: edit.firstName } : {}),
+        ...(typeof edit.lastName !== 'undefined' ? { lastName: edit.lastName } : {}),
+        ...(typeof edit.phone !== 'undefined' ? { phone: edit.phone } : {}),
+      };
+    });
 
     let updatedGuest = {
       ...guestNoClaims,
-      invitationRowIndexes: updateNamesEverywhere(guestNoClaims.invitationRowIndexes || []),
-      invitedToRehearsalDinner: updateNamesEverywhere(guestNoClaims.invitedToRehearsalDinner || []),
-      individualDetails: updateIndividuals(guestNoClaims.individualDetails || []),
+      individualDetails: updatedIndividuals,
     };
 
-    const selfEdit = perPersonEdits.find(e => Number(e.rowIndex) === Number(guestNoClaims.rowIndex));
-    if (selfEdit?.newFullName) {
-      const parts = selfEdit.newFullName.split(/\s+/);
+    // If the logged-in person updated first/last, keep top-level fields aligned (still no fullName change)
+    const selfEdit = perPersonEdits.find((e) => Number(e.rowIndex) === Number(guestNoClaims.rowIndex));
+    if (selfEdit) {
       updatedGuest = {
         ...updatedGuest,
-        fullName: selfEdit.newFullName,
-        firstName: parts[0] || '',
-        lastName: parts.slice(1).join(' '),
+        ...(typeof selfEdit.firstName !== 'undefined' ? { firstName: selfEdit.firstName } : {}),
+        ...(typeof selfEdit.lastName !== 'undefined' ? { lastName: selfEdit.lastName } : {}),
       };
     }
 
     const token = await signToken(updatedGuest);
     const res = NextResponse.json({ success: true, token, guest: updatedGuest }, { status: 200 });
+
     res.cookies.set('auth', token, {
       httpOnly: true,
       sameSite: 'lax',
@@ -151,6 +173,7 @@ export async function POST(req) {
       path: '/',
       maxAge: 60 * 60 * 2,
     });
+
     return res;
   } catch (err) {
     console.error('Update details error:', err);

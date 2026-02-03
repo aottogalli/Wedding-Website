@@ -51,6 +51,8 @@ export function buildGuestPayload(rows, rowIndex, postalCode) {
     const individualDetails = matches.map((o) => ({
         fullName: (o.row[1] || '').trim(),
         rowIndex: Number(o.index),
+        firstName: (o.row[2] || '').trim(),
+        lastName:  (o.row[3] || '').trim(),
         dietary: (o.row[28] || '').trim(), // AC
         phone: (o.row[13] || '').trim(),   // N
     }));

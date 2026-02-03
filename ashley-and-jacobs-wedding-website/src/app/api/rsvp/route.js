@@ -91,6 +91,8 @@ export async function GET(req) {
                 fullName: g.fullName,
                 rsvp: g.rsvp || '',
                 dietary: byIndex.get(Number(g.rowIndex))?.dietary || '',
+                firstName: byIndex.get(Number(g.rowIndex))?.firstName || '',
+                lastName:  byIndex.get(Number(g.rowIndex))?.lastName || '',
                 rowIndex: Number(g.rowIndex),
             }));
 
@@ -115,6 +117,8 @@ export async function GET(req) {
             fullName: g.fullName,
             rsvp: g.rsvp || '',
             dietary: byIndexNew.get(Number(g.rowIndex))?.dietary || '',
+            firstName: byIndexNew.get(Number(g.rowIndex))?.firstName || '',
+            lastName:  byIndexNew.get(Number(g.rowIndex))?.lastName || '',
             rowIndex: Number(g.rowIndex),
         }));
 
@@ -197,6 +201,8 @@ export async function PUT(req) {
         fullName: g.fullName,
         rsvp: g.rsvp || '',
         dietary: byIndexNew.get(Number(g.rowIndex))?.dietary || '',
+        firstName: byIndexNew.get(Number(g.rowIndex))?.firstName || '',
+        lastName:  byIndexNew.get(Number(g.rowIndex))?.lastName || '',
         rowIndex: Number(g.rowIndex),
     }));
 

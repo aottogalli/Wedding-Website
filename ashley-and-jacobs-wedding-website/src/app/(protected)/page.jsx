@@ -489,7 +489,7 @@ export default function WeddingWebsite() {
                 </p>
               </div>
               <div className="mt-5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm sm:text-base tracking-wide text-white/85">
-                <span className="opacity-75">Group</span><span>AMV</span>
+                <span className="opacity-75">Group</span><span>AMW</span>
                 <span className="opacity-75">Deadline</span><span>Apr 3, 2026</span>
               </div>
               <a
