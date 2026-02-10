@@ -26,8 +26,9 @@ const FAQS = [
     content: () => (
       <p className="text-white/90">
         <strong>Formal Attire</strong> with a light, spring <em>garden</em> feel. Think airy fabrics and soft,
-        nature-inspired tones—pastels and subtle florals encouraged. A classic black tuxedo is always welcome. Please
-        avoid <strong>white</strong> and <strong>champagne</strong> (reserved for the bridal party).
+        nature-inspired tones—pastels and subtle florals encouraged. For men, a classic black tuxedo is always welcome,
+        but a dark suit (navy, charcoal, or black) is absolutely perfect as well. Please avoid <strong>white</strong> and{' '}
+        <strong>champagne</strong> (reserved for the bridal party).
       </p>
     ),
   },
