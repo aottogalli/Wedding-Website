@@ -42,6 +42,9 @@ html, body {
   overflow-x: hidden;      /* prevent horizontal scroll */
   overflow-y: auto;        /* scroll when needed */
   scroll-behavior: smooth;
+
+  /* ✅ iPhone: prevents the “white strip” during overscroll */
+  background: var(--color-champagne);
 }
 
 body {
@@ -49,6 +52,11 @@ body {
   color: var(--color-text);
   font-family: var(--font-trajan);
   overscroll-behavior-x: none;
+}
+
+/* ✅ iOS: prefers a stable full-height layout */
+body, #__next {
+  min-height: 100svh;
 }
 
 @supports (position: fixed) {
@@ -70,9 +78,22 @@ h1, h2, h3, h4, h5, h6 {
     #f9f0df 70%,
     #f4e8d3 100%
   );
-  background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
+
+  /* ✅ iPhone fix: "fixed" can cause split/white rendering */
+  background-attachment: scroll;
+
+  /* ✅ ensure the gradient always fills the screen on iOS */
+  min-height: 100svh;
+}
+
+/* Optional: keep the "fixed" look on desktop only */
+@media (min-width: 768px) {
+  .rsvp-gold-background {
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
 }
 
 .rsvp-footer {
@@ -117,10 +138,11 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 1px 0 rgba(0,0,0,0.03);
 }
 
+/* ✅ Remove duplicate .rsvp-btn-primary (you had it twice) */
 .rsvp-btn-primary {
-  background: #2b2b2b;
+  background: #8f9b8d;
   color: white;
-  border: 1px solid #2b2b2b;
+  border: 1px solid #8f9b8d;
 }
 .rsvp-btn-primary:hover { opacity: 0.92; }
 
@@ -130,24 +152,14 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(205, 191, 174, 0.9);
 }
 
-.rsvp-btn-primary {
-  background: #8f9b8d;
-  color: white;
-  border: 1px solid #8f9b8d;
-}
-
-
-
-
 /* Small helper to make the section tuck under a fixed navbar cleanly */
 .sticky-under-nav {
   position: sticky;
-  top: 0;          /* if your nav is fixed and taller, adjust here or use a CSS var */
+  top: 0;
   z-index: 40;
 }
 
-/* ===== Responsive tweaks you already had ===== */
-/* --- Hero animations --- */
+/* ===== Animations ===== */
 @keyframes kenburns {
   0%   { transform: scale(1.08); }
   100% { transform: scale(1); }
@@ -168,7 +180,7 @@ h1, h2, h3, h4, h5, h6 {
 .animate-fadeDown { animation: fade-down .9s cubic-bezier(.16,1,.3,1) both; }
 
 .wipe-start {
-  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); /* collapsed */
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
 }
 @keyframes wipeIn {
   from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); }
@@ -178,7 +190,6 @@ h1, h2, h3, h4, h5, h6 {
   animation: wipeIn 3s ease-out forwards;
 }
 
-/* Optional: subtle card shadow when overlapping previous section */
 .shadow-soft {
   box-shadow: 0 10px 30px rgba(0,0,0,.08);
 }
@@ -188,27 +199,22 @@ h1, h2, h3, h4, h5, h6 {
   60% { transform: translateY(0) scale(1.03); opacity: 1; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
-  
 .animate-pop { animation: pop .35s ease-out both; }
 
 /* Navbar */
 :root {
-  --nav-h: 44px;     /* mobile (h-12) */
+  --nav-h: 44px;
 }
 @media (min-width: 768px) {
-  :root { --nav-h: 56px; }  /* md:h-14 */
+  :root { --nav-h: 56px; }
 }
 
 /* =======================
    FORCE OPAQUE MOBILE MENU
    ======================= */
-
-/* Our new Navbar gives these IDs — make them hard-opaque */
 #mobile-backdrop { background: #000 !important; opacity: 1 !important; }
 #mobile-drawer   { background: #fff !important; }
 
-/* Nuke any semi-transparent tailwind backdrop colors that might be used
-   by an older/other drawer (note the escaped slash in selectors) */
 .bg-black\/5, .bg-black\/10, .bg-black\/20, .bg-black\/30, .bg-black\/40,
 .bg-black\/50, .bg-black\/60, .bg-black\/70, .bg-black\/80, .bg-black\/90 {
   background-color: #000 !important;
@@ -219,10 +225,8 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #fff !important;
 }
 
-/* If any old drawer used backdrop blur, kill it so the page never shows through */
 .backdrop-blur, .backdrop-blur-sm, .backdrop-blur-md,
 .backdrop-blur-lg, .backdrop-blur-xl {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
-
