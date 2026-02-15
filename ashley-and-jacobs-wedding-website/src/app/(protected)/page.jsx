@@ -359,23 +359,10 @@ export default function WeddingWebsite() {
             <Link
               href="/weddingRSVP"
               prefetch={false}
-              className="text-champagne/95 text-[11px] sm:text-xs md:text-sm tracking-[0.28em] uppercase underline decoration-transparent underline-offset-8 hover:font-bold transition"
+              className="px-4 py-1.5 text-[11px] drop-shadow-[0_3px_8px_rgba(0,0,0,0.65)] sm:text-xs tracking-[0.22em] border border-champagne text-champagne hover:font-bold transition rounded-none"
             >
               RSVP
             </Link>
-
-            {canSeeRehearsal && (
-              <>
-                <span className="hidden sm:inline text-white/35">•</span>
-                <Link
-                  href="/rehearsalDinnerRSVP"
-                  prefetch={false}
-                  className="text-champagne/95 text-[11px] sm:text-xs md:text-sm tracking-[0.28em] uppercase underline decoration-transparent underline-offset-8 hover:font-bold transition"
-                >
-                  Rehearsal Dinner RSVP
-                </Link>
-              </>
-            )}
           </div>
         </div>
 
