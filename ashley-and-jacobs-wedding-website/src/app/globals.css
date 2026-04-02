@@ -231,3 +231,50 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+
+/* ===== Section gradients (use on SECTIONS, not buttons) ===== */
+.bg-champagne-gradient {
+  background-color: var(--color-champagne);
+  background-image: radial-gradient(
+    circle at center,
+    #fffdf8 0%,
+    #fdf6ea 35%,
+    #f9f0df 70%,
+    #f4e8d3 100%
+  );
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  /* iOS: fixed can cause weird splitting/white bars */
+  background-attachment: scroll;
+}
+
+.bg-green-gradient {
+  background-color: var(--color-green);
+  background-image:
+    radial-gradient(900px circle at 50% 0%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(to bottom, #7f9486 0%, #75897b 55%, #6a7d70 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: scroll;
+}
+
+/* Optional: keep a subtle "fixed" feel on desktop only */
+@media (min-width: 768px) {
+  .bg-champagne-gradient,
+  .bg-green-gradient {
+    background-attachment: fixed;
+  }
+}
+
+.no-save,
+.no-save * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* iOS long-press menu */
+}
+
+.no-save img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}

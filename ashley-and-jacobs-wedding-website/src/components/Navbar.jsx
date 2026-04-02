@@ -126,6 +126,7 @@ export default function Navbar() {
             <Link href="/#hero" className={link}>Home</Link>
             <Link href="/#itinerary" className={link}>Itinerary</Link>
             <Link href="/#faq" className={link}>Q+A</Link>
+            <Link href="/gallery" className={link}>Gallery</Link>
             <Link href="/weddingRSVP" className={link}>RSVP</Link>
             {mounted && hasRehearsal && (
               <Link href="/rehearsalDinnerRSVP" className={link}>
@@ -133,7 +134,6 @@ export default function Navbar() {
               </Link>
             )}
           </div>
-
           {/* Right (desktop) */}
           <div className="hidden lg:flex items-center gap-4">
             {mounted && guest && (
@@ -180,8 +180,8 @@ export default function Navbar() {
             <Link href="/#hero"      onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Home</Link>
             <Link href="/#itinerary" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Itinerary</Link>
             <Link href="/#faq"       onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Q+A</Link>
+            <Link href="/gallery" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">Gallery</Link>
             <Link href="/weddingRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">RSVP</Link>
-
             {mounted && hasRehearsal && (
               <Link href="/rehearsalDinnerRSVP" onClick={() => setOpen(false)} className="block w-full px-6 py-5 text-base hover:bg-black/5">
                 Rehearsal&nbsp;RSVP

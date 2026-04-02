@@ -6,7 +6,7 @@ import { getRehearsalDinnerRsvp, updateRehearsalDinnerRsvp } from '@/api/rehears
 
 /** Deadline: Sept 20, 2025 local time (lock just after 11:59:59pm local) */
 function isPastDeadline(now = new Date()) {
-  const DEADLINE_LOCAL = new Date('2026-04-02T00:00:00'); // your date
+  const DEADLINE_LOCAL = new Date('2026-04-17T00:00:00'); // your date
   return now >= DEADLINE_LOCAL;
 }
 
@@ -129,7 +129,7 @@ export default function RehearsalDinnerPage() {
                     <h1 className='mt-4 text-4xl sm:text-5xl md:text-6xl font-altitude'>The Rehearsal</h1>
                     <div className="monogram-swan h-37 mx-auto w-auto mb-3 text-green" aria-hidden="true" />
                     <p className='mt-4 text-xl md:text-2xl'>May 7, 2026</p>
-                    <p className="text-sm md:text-base mt-3 mb-5">Please RSVP by <span className="font-semibold">April 1st</span></p>
+                    <p className="text-sm md:text-base mt-3 mb-5">Please RSVP by <span className="font-semibold">April 17th</span></p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] gap-8 md:gap-10 items-start">

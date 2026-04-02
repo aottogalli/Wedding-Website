@@ -82,7 +82,7 @@ function FaqSection() {
   );
 
   return (
-    <section id="faq" className="bg-green text-white scroll-mt-24">
+    <section id="faq" className="bg-green-gradient text-white scroll-mt-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-14">
         <div className="text-center mb-8 sm:mb-10">
           <p className="text-white/80 tracking-[0.28em] text-[11px] sm:text-xs">DETAILS</p>
@@ -378,7 +378,7 @@ export default function WeddingWebsite() {
       </section>
 
       {/* Monogram / Date */}
-      <section id="next" className="bg-champagne py-14 sm:py-16">
+      <section id="next" className="bg-champagne-gradient py-14 sm:py-16">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="flex flex-col items-center text-center">
             {/* Green-tinted aj_white.svg (mask technique) */}
@@ -457,7 +457,7 @@ export default function WeddingWebsite() {
       </section>
 
       {/* Our Story (centered on all breakpoints) */}
-      <section id="our-story" ref={ourStoryRef} className="bg-champagne scroll-mt-24">
+      <section id="our-story" ref={ourStoryRef} className="bg-champagne-gradient scroll-mt-24">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-16 md:py-20">
           <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
             <div className="w-full">
@@ -605,7 +605,7 @@ export default function WeddingWebsite() {
       </div>
 
       {/* Travel (buttons bottom-aligned + wipe icons) */}
-      <section id="travel" ref={travelRef} className="bg-green text-white scroll-mt-24">
+      <section id="travel" ref={travelRef} className="bg-green-gradient text-white scroll-mt-24">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 py-12 sm:py-16 lg:py-20">
           <h2 className="text-center text-3xl sm:text-4xl md:text-5xl mb-10 md:mb-14">Travel &amp; Accommodations</h2>
 

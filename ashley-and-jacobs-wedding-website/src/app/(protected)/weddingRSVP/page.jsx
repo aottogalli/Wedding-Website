@@ -6,7 +6,7 @@ import { getWeddingRsvp, updateWeddingRsvp } from '@/api/weddingAPI';
 
 /** Deadline: lock just after 11:59:59pm local */
 function isPastDeadline(now = new Date()) {
-    const DEADLINE_LOCAL = new Date('2026-04-02T00:00:00'); // your date
+    const DEADLINE_LOCAL = new Date('2026-04-09T00:00:00'); // your date
     return now >= DEADLINE_LOCAL;
 }
 
